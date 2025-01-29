@@ -46,11 +46,6 @@ example : (M p n).det = p^(2*n) := by
 --IsBezout.gcd_eq_sum
 
 
-
-def d1 (A :  Matrix (Fin 2) (Fin 2) ℤ) : ℤ := by sorry
-
-example (a b : ℤ) : ℤ := gcd a b
-
 lemma gcd_two (A : Matrix (Fin 2) (Fin 2) ℤ) : ∃ x y : ℤ, A 0 0 * x + A 1 0 * y = gcd (A 0 0) (A 1 0)  := by
 let x := (A 0 0).gcdA (A 1 0)
 let y := (A 0 0).gcdB (A 1 0)
@@ -69,22 +64,53 @@ use w
 rw[← h]
 rfl
 
-lemma d1_bezout (A : Matrix (Fin 2) (Fin 2) ℤ) : ∃ x y z w : ℤ, d1 A = A 0 0 * x + A 1 0 * y + A 0 1 * z + A 1 1 * w := by
-let g1 := gcd (A 0 0) (A 1 0)
-rcases gcd_two A with ⟨x1, y1, h1⟩
-let g2 := gcd (A 0 1) (A 1 1)
-rcases gcd_two_2 A with ⟨z1, w1, h2⟩
-use x1
-use y1
-use z1
-use w1
-have h3 : d1 A = g1 + g2 := sorry
-rw[h3, h1]
-simp_all only [Fin.isValue, g1, g2]
-rw[← h2]
-rw[add_assoc]
 
-lemma det_div_d1 (A : Matrix (Fin 2) (Fin 2) ℤ) : ∃ u : ℤ, A.det = d1 A * u := by sorry
+lemma gcd_four (A : Matrix (Fin 2) (Fin 2) ℤ) : ∃ a b : ℤ, gcd (A 0 0) (A 1 0) * a + gcd (A 0 1) (A 1 1) * b = gcd (gcd (A 0 0) (A 1 0)) (gcd (A 0 1) (A 1 1)) := by
+let a := (gcd (A 0 0) (A 1 0)).gcdA (gcd (A 0 1) (A 1 1))
+let b := (gcd (A 0 0) (A 1 0)).gcdB (gcd (A 0 1) (A 1 1))
+have h : gcd (gcd (A 0 0) (A 1 0)) (gcd (A 0 1) (A 1 1)) =
+         gcd (A 0 0) (A 1 0) * a + gcd (A 0 1) (A 1 1) * b :=
+  Int.gcd_eq_gcd_ab (gcd (A 0 0) (A 1 0)) (gcd (A 0 1) (A 1 1))
+use a
+use b
+rw[← h]
+
+
+
+
+
+
+
+def d1 (A :  Matrix (Fin 2) (Fin 2) ℤ) : ℤ :=
+  gcd (gcd (A 0 0) (A 1 0)) (gcd (A 1 0) (A 1 1))
+
+example (a b : ℤ) : ℤ := gcd a b
+
+
+lemma d1_bezout (A : Matrix (Fin 2) (Fin 2) ℤ) : ∃ x y z w : ℤ, d1 A = A 0 0 * x + A 1 0 * y + A 0 1 * z + A 1 1 * w := by
+obtain ⟨x, y, h1⟩ := gcd_two A
+obtain ⟨z, w, h2⟩ := gcd_two_2 A
+obtain ⟨a, b, h3⟩ := gcd_four A
+rw[d1]
+rw[← h1, ← h2] at h3
+use (a * x), (a * y), (b * z), (b * w)
+rw[← mul_assoc]
+rw[← mul_assoc]
+rw[← mul_assoc]
+rw[← mul_assoc]
+
+sorry
+
+
+lemma det_div_d1 (A : Matrix (Fin 2) (Fin 2) ℤ) : ∃ u : ℤ, A.det = d1 A * u := by
+obtain ⟨x, y, z, bezout_eq⟩ := d1_bezout A
+rw[Matrix.det_fin_two]
+let h := A 0 0 * A 1 1 - A 0 1 * A 1 0
+sorry
+
+
+
+
 
 
 
