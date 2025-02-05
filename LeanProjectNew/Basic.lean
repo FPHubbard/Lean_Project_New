@@ -174,9 +174,12 @@ example (a : ℕ) (p : ℕ) [Fact p.Prime] : padicValInt p (p ^ a) = a := by
 example (a : ℕ) (p : ℕ) [Fact p.Prime] : padicValNat p (p ^ a) = a := by
   exact padicValNat.prime_pow a
 
+def Vp (p : ℕ) [Fact p.Prime] (x : ℤ) : ℕ := padicValInt p x
 
 
+def conjecture (p : ℕ) [Fact p.Prime]: Prop :=
 
+sorry
 
 
 
