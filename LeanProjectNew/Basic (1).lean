@@ -176,11 +176,9 @@ have u := h.choose_spec
 refine Int.eq_ediv_of_mul_eq_right ?H1 (id (Eq.symm u))
 exact d1_neq A hd
 
-def SNF (M : Matrix (Fin 2) (Fin 2) ℤ) := !![d1 M, 0; 0, d2 M]
 
-def MYmat (p m : ℕ) [Fact p.Prime] : Matrix (Fin 2) (Fin 2) ℤ := !![p^m,1;0,p^m]
 
---lemma Mymat_pow (p m i : ℕ) [Fact p.Prime] : (MYmat p m) ^ i = !![p^(m*i),1;0,p^(m*i)] := by
+
 
 
 
@@ -202,6 +200,36 @@ example (a : ℕ) (p : ℕ) [Fact p.Prime] : padicValInt p (p ^ a) = a := by
 
 example (a : ℕ) (p : ℕ) [Fact p.Prime] : padicValNat p (p ^ a) = a := by
   exact padicValNat.prime_pow a
+
+
+
+def SNF (M : Matrix (Fin 2) (Fin 2) ℤ) := !![d1 M, 0; 0, d2' M]
+
+def MYmat (p n : ℕ) [Fact p.Prime] : Matrix (Fin 2) (Fin 2) ℤ := !![p^n,1;0,p^n]
+
+lemma Mymat_pow (p n i : ℕ) [Fact p.Prime] : (MYmat p n) ^ i = !![(p^(n*i) : ℤ), (i*p^(i*n-n) : ℤ); (0 : ℤ), (p^(n*i) : ℤ)] := by
+  cases i with
+  | zero =>
+    exfalso -- case o i = 0 not possible
+    sorry
+  | succ k =>
+    cases k with
+    | zero =>
+      simp
+      rfl
+    | succ n =>
+      simp
+      sorry
+
+
+
+
+
+
+
+
+
+
 
 def Vp (p : ℕ) [Fact p.Prime] (x : ℤ) : ℕ := padicValInt p x
 
