@@ -1,5 +1,6 @@
 import Mathlib
 
+
 variable {p : ℕ} [Fact p.Prime]
 variable {n : ℕ}
 
@@ -207,19 +208,30 @@ def SNF (M : Matrix (Fin 2) (Fin 2) ℤ) := !![d1 M, 0; 0, d2' M]
 
 def MYmat (p n : ℕ) [Fact p.Prime] : Matrix (Fin 2) (Fin 2) ℤ := !![p^n,1;0,p^n]
 
-lemma Mymat_pow (p n i : ℕ) [Fact p.Prime] : (MYmat p n) ^ i = !![(p^(n*i) : ℤ), (i*p^(i*n-n) : ℤ); (0 : ℤ), (p^(n*i) : ℤ)] := by
-  cases i with
+
+lemma MYmat_pow (p n i : ℕ) [Fact p.Prime] : (MYmat p n) ^ i = !![(p^(n*i) : ℤ), (i*p^(i*n-n) : ℤ); (0 : ℤ), (p^(n*i) : ℤ)] := by
+  induction i with
   | zero =>
-    exfalso -- case o i = 0 not possible
+    simp
+    apply Matrix.one_fin_two
+  | succ i ih =>
+    rw [pow_succ]
+    rw [ih]
+    rw[MYmat]
+    have h1 : p ^ (n * (i + 1)) = p ^ (n * i + n) := by ring
+    have h2 : p ^ (n * i + n) = p ^ (n * i) * p ^ n := by ring
+    rw[h2] at h1
+    rw[Nat.left_distrib]
+    rw [@npow_add]
+    rw[mul_one]
+    have h3 : (i + 1) * n - n = n * i := by
+      ring
+      rw [Nat.add_sub_cancel_right]
+    rw[h3]
+    have h4 : (i + 1) * p ^ (n * i) = i * p ^ (n * i) + p ^ (n * i) := by
+      ring
     sorry
-  | succ k =>
-    cases k with
-    | zero =>
-      simp
-      rfl
-    | succ n =>
-      simp
-      sorry
+  sorry
 
 
 
@@ -231,13 +243,17 @@ lemma Mymat_pow (p n i : ℕ) [Fact p.Prime] : (MYmat p n) ^ i = !![(p^(n*i) : �
 
 
 
-def Vp (p : ℕ) [Fact p.Prime] (x : ℤ) : ℕ := padicValInt p x
 
 
-def conjecture (p : ℕ) [Fact p.Prime]: Prop :=
 
-sorry
 
+--def MYconj (p : ℕ) [Fact p.Prime]: Prop := (A : Matrix (Fin n) (Fin n) ℤ) : ∃ (d : ℕ) (hd : > 0) (C : Matrix (Fin n) (Fin n) ℤ), ∀ (i : ℕ) (hi : i > 0),
+  --Vp (SNF (A^(i + d * n))) = Vp (C^n) + Vp (SNF (A^i))
+
+
+
+def Myconj (p : ℕ) [Fact p.Prime] (n : ℕ) (A : Matrix (Fin n) (Fin n) ℤ) : Prop := ∃ (d : ℕ) (C : Matrix (Fin n) (Fin n) ℤ), ∀ (i : ℕ) (hi : i > 0),
+  Vp p (SNF (A^(i + d * n))) = Vp p (C^n) + Vp p (SNF (A^i))
 
 
 
