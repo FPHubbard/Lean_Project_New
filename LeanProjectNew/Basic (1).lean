@@ -1,10 +1,10 @@
 import Mathlib
 
-
 variable {p : ℕ} [Fact p.Prime]
 variable {n : ℕ}
 
 noncomputable section
+set_option maxHeartbeats 500000
 
 --def A (a : ℤ) := !![a,1 ; 0,a]
 
@@ -208,8 +208,64 @@ def SNF (M : Matrix (Fin 2) (Fin 2) ℤ) := !![d1 M, 0; 0, d2' M]
 
 def MYmat (p n : ℕ) [Fact p.Prime] : Matrix (Fin 2) (Fin 2) ℤ := !![p^n,1;0,p^n]
 
+lemma mat_pow_i (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1): !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ ); (0 : ℤ), (p ^ (n * i) : ℤ)] * !![(p ^ n : ℤ), (1 : ℤ); (0 : ℤ), (p ^ n : ℤ)] = !![(p ^ (n * (i + 1)) : ℤ), ((i + 1) * p ^ ((i + 1) * n - n) : ℤ); (0 : ℤ), (p ^ (n * (i + 1)) : ℤ)] := by
+  rw[@Matrix.mul_fin_two]
+  repeat rw [mul_zero]
+  repeat rw[zero_mul]
+  repeat rw[zero_add]
+  repeat rw[add_zero]
+  repeat rw[mul_one]
+  rw [Nat.right_distrib]
+  rw [Int.add_mul]
+  repeat rw [one_mul]
+  have h1 : n * (i + 1) = n * i + n := by
+    ring
+  rw [h1]
+  rw [pow_add]
+  have h2 : (i * p ^ (i * n - n) * p ^ n : ℤ) = (i * p ^ (i * n - n + n) : ℤ) := by
+    ring
+  rw [h2]
+  rw [add_comm]
+  have h3 : i * n + n - n = n * i := by
+    rw [Nat.add_sub_cancel]
+    rw[mul_comm]
+  rw [h3]
+  have h4 : i * n - n + n = n * i  := by
+    sorry
+  rw [h4]
 
-lemma MYmat_pow (p n i : ℕ) [Fact p.Prime] : (MYmat p n) ^ i = !![(p^(n*i) : ℤ), (i*p^(i*n-n) : ℤ); (0 : ℤ), (p^(n*i) : ℤ)] := by
+
+
+
+lemma MYmat_pow (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1) : (MYmat p n) ^ i = !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ); (0 : ℤ), (p ^ (n * i) : ℤ)] := by
+  induction i with
+  | zero =>
+    simp
+    apply Matrix.one_fin_two
+  | succ i ih =>
+    rw [pow_succ]
+    rw [ih]
+    rw [MYmat]
+    rw [mat_pow_i]
+    rfl
+    exact Nat.le_add_left 1 i
+    exact Nat.le_add_left 1 i
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/- lemma MYmat_pow (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) : (MYmat p n) ^ i = !![(p^(n*i) : ℤ), (i*p^(i*n-n) : ℤ); (0 : ℤ), (p^(n*i) : ℤ)] := by
   induction i with
   | zero =>
     simp
@@ -218,25 +274,61 @@ lemma MYmat_pow (p n i : ℕ) [Fact p.Prime] : (MYmat p n) ^ i = !![(p^(n*i) : �
     rw [pow_succ]
     rw [ih]
     rw[MYmat]
-    have h1 : p ^ (n * (i + 1)) = p ^ (n * i + n) := by ring
-    have h2 : p ^ (n * i + n) = p ^ (n * i) * p ^ n := by ring
-    rw[h2] at h1
-    rw[Nat.left_distrib]
-    rw [@npow_add]
-    rw[mul_one]
-    have h3 : (i + 1) * n - n = n * i := by
+    rw[@Matrix.mul_fin_two]
+    repeat rw[mul_zero]
+    repeat rw[zero_mul]
+    repeat rw[zero_add]
+    repeat rw[add_zero]
+    repeat rw[mul_one]
+    rw[Nat.right_distrib]
+    rw[Int.add_mul]
+    rw[one_mul]
+    have h1 : (i * p ^  (i * n - n) * p ^ n : ℤ) = (i * p ^ (i * n - n + n) : ℤ ) := by
       ring
-      rw [Nat.add_sub_cancel_right]
-    rw[h3]
-    have h4 : (i + 1) * p ^ (n * i) = i * p ^ (n * i) + p ^ (n * i) := by
+    have h2 : n * (i + 1) = n * i + n := by
       ring
-    sorry
-  sorry
+    rw[h2]
+    rw[pow_add]
+    rw[h1]
+    have h3 : ((i + 1) * p ^ (i * n - n + n) : ℤ) = (i * p ^ (i * n - n + n) : ℤ ) + ( p ^ (i * n - n + n) : ℤ ) := by
+      ring
+      sorry
+    rw[h3] -/
 
 
-
-
-
+/- example (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1): !![↑p ^ (n * i), i * p ^ (i * n - n); 0, p ^ (n * i)] * !![p ^ n, 1; 0, p ^ n] = !![p ^ (n * (i + 1)), (i + 1) * p ^ ((i + 1) * n - n); 0, p ^ (n * (i + 1))] := by
+  rw [@Matrix.mul_fin_two]
+  repeat rw [mul_zero]
+  repeat rw[zero_mul]
+  repeat rw[zero_add]
+  repeat rw[add_zero]
+  repeat rw[mul_one]
+  rw [Nat.right_distrib]
+  rw [one_mul]
+  have h1 : i * p ^  (i * n - n) * p ^ n = i * p ^ (i * n - n + n) := by
+    ring
+  have h2 : n * (i + 1) = n * i + n := by
+    ring
+  rw[h2]
+  rw [Nat.pow_add]
+  rw[h1]
+  have h3 : (i + 1) * n - n = i * n - n + n := by
+    rw[Nat.add_mul]
+    rw[one_mul]
+    rw[Nat.add_sub_cancel]
+    rw[Nat.sub_add_cancel]
+    calc
+    n = 1 * n := by rw[one_mul]
+    _ ≤ i * n := Nat.mul_le_mul_right n hi
+  rw[h3]
+  rw[add_comm]
+  have h4 : i * n - n + n = n * i := by
+    rw[Nat.sub_add_cancel]
+    rw[mul_comm]
+    calc
+      n = 1 * n := by rw[one_mul]
+      _ ≤ i * n := Nat.mul_le_mul_right n hi
+  rw[h4] -/
 
 
 
