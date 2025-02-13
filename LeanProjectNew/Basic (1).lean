@@ -208,7 +208,7 @@ def SNF (M : Matrix (Fin 2) (Fin 2) ℤ) := !![d1 M, 0; 0, d2' M]
 
 def MYmat (p n : ℕ) [Fact p.Prime] : Matrix (Fin 2) (Fin 2) ℤ := !![p^n,1;0,p^n]
 
-lemma mat_pow_i (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1): !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ ); (0 : ℤ), (p ^ (n * i) : ℤ)] * !![(p ^ n : ℤ), (1 : ℤ); (0 : ℤ), (p ^ n : ℤ)] = !![(p ^ (n * (i + 1)) : ℤ), ((i + 1) * p ^ ((i + 1) * n - n) : ℤ); (0 : ℤ), (p ^ (n * (i + 1)) : ℤ)] := by
+lemma mat_pow_i (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1) : !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ ); (0 : ℤ), (p ^ (n * i) : ℤ)] * !![(p ^ n : ℤ), (1 : ℤ); (0 : ℤ), (p ^ n : ℤ)] = !![(p ^ (n * (i + 1)) : ℤ), ((i + 1) * p ^ ((i + 1) * n - n) : ℤ); (0 : ℤ), (p ^ (n * (i + 1)) : ℤ)] := by
   rw[@Matrix.mul_fin_two]
   repeat rw [mul_zero]
   repeat rw[zero_mul]
@@ -231,13 +231,14 @@ lemma mat_pow_i (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1): !![(p ^ (n * i)
     rw[mul_comm]
   rw [h3]
   have h4 : i * n - n + n = n * i  := by
+    rw [Nat.sub_add_cancel]
+    rw [mul_comm]
     sorry
   rw [h4]
 
 
 
-
-lemma MYmat_pow (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1) : (MYmat p n) ^ i = !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ); (0 : ℤ), (p ^ (n * i) : ℤ)] := by
+lemma MYmat_pow_1 (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1) : (MYmat p n) ^ i = !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ); (0 : ℤ), (p ^ (n * i) : ℤ)] := by
   induction i with
   | zero =>
     simp
@@ -253,99 +254,31 @@ lemma MYmat_pow (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1) : (MYmat p n) ^ 
 
 
 
+lemma SNF_MYmat_1 (p n i : ℕ) [Fact p.Prime] (h : p ^ (i * n - n) ∣ i) (hi : i + 1 ≥ 1) : SNF ((MYmat p n) ^ i) = !![(p ^ (n * i) : ℤ), 0; 0, (p ^ (n * i) : ℤ)] := by
+  rw [MYmat_pow_1, SNF]
+  sorry
+  exact hi
 
 
 
+lemma SNF_MYmat_2 (p n i : ℕ) [Fact p.Prime] (h :  ¬ p ^ (i * n - n) ∣ i) (hi : i + 1 ≥ 1) : SNF ((MYmat p n) ^ i) = !![(p ^ (n * i - n) : ℤ), 0; 0, (p ^ (n * i + n) : ℤ)] := by
+  rw [MYmat_pow_1, SNF]
+  sorry
+  exact hi
 
 
 
+def C (a b : ℤ) : Matrix (Fin 2) (Fin 2) ℤ := !![a, 0; 0, b]
 
-
-
-
-
-
-/- lemma MYmat_pow (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) : (MYmat p n) ^ i = !![(p^(n*i) : ℤ), (i*p^(i*n-n) : ℤ); (0 : ℤ), (p^(n*i) : ℤ)] := by
-  induction i with
-  | zero =>
-    simp
-    apply Matrix.one_fin_two
-  | succ i ih =>
-    rw [pow_succ]
-    rw [ih]
-    rw[MYmat]
-    rw[@Matrix.mul_fin_two]
-    repeat rw[mul_zero]
-    repeat rw[zero_mul]
-    repeat rw[zero_add]
-    repeat rw[add_zero]
-    repeat rw[mul_one]
-    rw[Nat.right_distrib]
-    rw[Int.add_mul]
-    rw[one_mul]
-    have h1 : (i * p ^  (i * n - n) * p ^ n : ℤ) = (i * p ^ (i * n - n + n) : ℤ ) := by
-      ring
-    have h2 : n * (i + 1) = n * i + n := by
-      ring
-    rw[h2]
-    rw[pow_add]
-    rw[h1]
-    have h3 : ((i + 1) * p ^ (i * n - n + n) : ℤ) = (i * p ^ (i * n - n + n) : ℤ ) + ( p ^ (i * n - n + n) : ℤ ) := by
-      ring
-      sorry
-    rw[h3] -/
-
-
-/- example (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1): !![↑p ^ (n * i), i * p ^ (i * n - n); 0, p ^ (n * i)] * !![p ^ n, 1; 0, p ^ n] = !![p ^ (n * (i + 1)), (i + 1) * p ^ ((i + 1) * n - n); 0, p ^ (n * (i + 1))] := by
-  rw [@Matrix.mul_fin_two]
-  repeat rw [mul_zero]
-  repeat rw[zero_mul]
-  repeat rw[zero_add]
-  repeat rw[add_zero]
-  repeat rw[mul_one]
-  rw [Nat.right_distrib]
-  rw [one_mul]
-  have h1 : i * p ^  (i * n - n) * p ^ n = i * p ^ (i * n - n + n) := by
-    ring
-  have h2 : n * (i + 1) = n * i + n := by
-    ring
-  rw[h2]
-  rw [Nat.pow_add]
-  rw[h1]
-  have h3 : (i + 1) * n - n = i * n - n + n := by
-    rw[Nat.add_mul]
-    rw[one_mul]
-    rw[Nat.add_sub_cancel]
-    rw[Nat.sub_add_cancel]
-    calc
-    n = 1 * n := by rw[one_mul]
-    _ ≤ i * n := Nat.mul_le_mul_right n hi
-  rw[h3]
-  rw[add_comm]
-  have h4 : i * n - n + n = n * i := by
-    rw[Nat.sub_add_cancel]
-    rw[mul_comm]
-    calc
-      n = 1 * n := by rw[one_mul]
-      _ ≤ i * n := Nat.mul_le_mul_right n hi
-  rw[h4] -/
-
-
-
-
-
-
-
-
-
+def Vp (p : ℕ) (a : ℤ) [Fact p.Prime] : ℕ := padicValInt p a
 
 --def MYconj (p : ℕ) [Fact p.Prime]: Prop := (A : Matrix (Fin n) (Fin n) ℤ) : ∃ (d : ℕ) (hd : > 0) (C : Matrix (Fin n) (Fin n) ℤ), ∀ (i : ℕ) (hi : i > 0),
   --Vp (SNF (A^(i + d * n))) = Vp (C^n) + Vp (SNF (A^i))
 
 
 
-def Myconj (p : ℕ) [Fact p.Prime] (n : ℕ) (A : Matrix (Fin n) (Fin n) ℤ) : Prop := ∃ (d : ℕ) (C : Matrix (Fin n) (Fin n) ℤ), ∀ (i : ℕ) (hi : i > 0),
-  Vp p (SNF (A^(i + d * n))) = Vp p (C^n) + Vp p (SNF (A^i))
+def Myconj (p : ℕ) [Fact p.Prime] (n : ℕ) (A : Matrix (Fin 2) (Fin 2) ℤ) : Prop := ∃ (d : ℕ) (C : Matrix (Fin 2) (Fin 2) ℤ), ∀ (i : ℕ) (hi : i > 0),
+  Vp p ((SNF (A^(i + d * n))) 0 0) = Vp p ((C^n) 0 0) + Vp p ((SNF (A^i)) 0 0)
 
 
 
