@@ -7,6 +7,7 @@ noncomputable section
 set_option maxHeartbeats 500000
 set_option linter.unusedVariables false
 
+
 --def A (a : ℤ) := !![a,1 ; 0,a]
 
 --example (a : ℤ) : (A a).det = a*a - 1*0 := by exact Matrix.det_fin_two (A a)
@@ -210,53 +211,6 @@ def SNF (M : Matrix (Fin 2) (Fin 2) ℤ) := !![d1 M, 0; 0, d2' M]
 def MYmat (p n : ℕ) [Fact p.Prime] : Matrix (Fin 2) (Fin 2) ℤ := !![p^n,1;0,p^n]
 
 
-/-
-lemma mat_pow_i (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1) : !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ ); (0 : ℤ), (p ^ (n * i) : ℤ)] * !![(p ^ n : ℤ), (1 : ℤ); (0 : ℤ), (p ^ n : ℤ)] = !![(p ^ (n * (i + 1)) : ℤ), ((i + 1) * p ^ ((i + 1) * n - n) : ℤ); (0 : ℤ), (p ^ (n * (i + 1)) : ℤ)] := by
-  rw[@Matrix.mul_fin_two]
-  repeat rw [mul_zero]
-  repeat rw[zero_mul]
-  repeat rw[zero_add]
-  repeat rw[add_zero]
-  repeat rw[mul_one]
-  rw [Nat.right_distrib]
-  rw [Int.add_mul]
-  repeat rw [one_mul]
-  have h1 : n * (i + 1) = n * i + n := by
-    ring
-  rw [h1]
-  rw [pow_add]
-  have h2 : (i * p ^ (i * n - n) * p ^ n : ℤ) = (i * p ^ (i * n - n + n) : ℤ) := by
-    ring
-  rw [h2]
-  rw [add_comm]
-  have h3 : i * n + n - n = n * i := by
-    rw [Nat.add_sub_cancel]
-    rw[mul_comm]
-  rw [h3]
-  have h4 : i * n - n + n = n * i  := by
-    rw [Nat.sub_add_cancel]
-    rw [mul_comm]
-    sorry
-  rw [h4]
-
-
-
-lemma MYmat_pow_1 (p n i : ℕ) [Fact p.Prime] (hi : i + 1 ≥ 1) : (MYmat p n) ^ i = !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ); (0 : ℤ), (p ^ (n * i) : ℤ)] := by
-  induction i with
-  | zero =>
-    simp
-    apply Matrix.one_fin_two
-  | succ i ih =>
-    rw [pow_succ]
-    rw [ih]
-    rw [MYmat]
-    rw [mat_pow_i]
-    rfl
-    exact Nat.le_add_left 1 i
-    exact Nat.le_add_left 1 i
-
--/
-
 lemma mat_pow_i (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) : !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ ); (0 : ℤ), (p ^ (n * i) : ℤ)] * !![(p ^ n : ℤ), (1 : ℤ); (0 : ℤ), (p ^ n : ℤ)] = !![(p ^ (n * (i + 1)) : ℤ), ((i + 1) * p ^ ((i + 1) * n - n) : ℤ); (0 : ℤ), (p ^ (n * (i + 1)) : ℤ)] := by
   rw[@Matrix.mul_fin_two]
   repeat rw [mul_zero]
@@ -306,12 +260,27 @@ lemma MYmat_pow_1 (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) : (MYmat p n) ^ i 
     exact Nat.le_add_left 1 i
   #print axioms MYmat_pow_1
 
-lemma d1_MYmat_pow_div (p n i : ℕ) [Fact p.Prime] (h : p ^ (i * n - n) ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i) := by
-  sorry
 
-lemma d1_MYmat_pow_ndiv (p n i : ℕ) [Fact p.Prime] (h :  ¬ p ^ (i * n - n) ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i - n) := by
-  sorry
 
+lemma d1_MYmat_pow_div (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (h : p ^ (i * n - n) ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i) := by
+  rw[MYmat_pow_1]
+  unfold d1
+  simp_all only [Fin.isValue, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.empty_val',
+    Matrix.cons_val_fin_one, Matrix.cons_val_one, Matrix.head_fin_const, gcd_zero_right, map_pow, Matrix.head_cons]
+  rw [Int.normalize_coe_nat]
+
+  sorry
+  exact hi
+
+lemma d1_MYmat_pow_ndiv (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (h :  ¬ p ^ (i * n - n) ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i - n) := by
+  rw[MYmat_pow_1]
+  unfold d1
+  simp_all only [Fin.isValue, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.empty_val',
+    Matrix.cons_val_fin_one, Matrix.cons_val_one, Matrix.head_fin_const, gcd_zero_right, map_pow, Matrix.head_cons]
+  rw[Int.normalize_coe_nat]
+
+  sorry
+  exact hi
 
 lemma SNF_MYmat_1 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h : p ^ (i * n - n) ∣ i) (hi : i ≥ 1) : SNF ((MYmat p n) ^ i) = !![(p ^ (n * i) : ℤ), 0; 0, (p ^ (n * i) : ℤ)] := by
   rw [MYmat_pow_1, SNF]
@@ -333,9 +302,9 @@ lemma SNF_MYmat_1 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h : p ^ (i * n - 
     rw[test]
     rw[mul_one]
   rw[h2]
+  exact hi
   exact h
   exact hi
-
 
 
 
@@ -349,13 +318,24 @@ lemma SNF_MYmat_2 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h :  ¬ p ^ (i * 
   rw[h1]
   rw [← MYmat_pow_1 p n i hi]
   rw [d1_MYmat_pow_ndiv]
+  have h2' : n * i - n + (n * i + n) = 2 * (n * i) := by
+    rw [Nat.add_left_comm]
+    rw [Nat.sub_add_cancel]
+    rw [mul_comm]
+    rw [Nat.two_mul]
+    exact Nat.le_mul_of_pos_right n hi
   have h2 : (p ^ ( 2 * (n * i)) : ℤ) / (p ^ (n * i - n) : ℤ) = p ^ (n * i + n) := by
-    sorry
+    rw[Int.ediv_eq_of_eq_mul_right]
+    norm_cast
+    exact pow_ne_zero (n * i - n) hp
+    rw[← pow_add]
+    rw[h2']
   rw[h2]
+  exact hi
   exact h
   exact hi
 
-
+def C2 (p n : ℕ) [Fact p.Prime] : Matrix (Fin 2) (Fin 2) ℤ := !![p^(p*n), 0; 0, p^(p*n)]
 
 def C (a b : ℤ) : Matrix (Fin 2) (Fin 2) ℤ := !![a, 0; 0, b]
 
@@ -368,6 +348,11 @@ def Vp (p : ℕ) (a : ℤ) [Fact p.Prime] : ℕ := padicValInt p a
 
 def Myconj (p : ℕ) [Fact p.Prime] (n : ℕ) (A : Matrix (Fin 2) (Fin 2) ℤ) : Prop := ∃ (d : ℕ) (C : Matrix (Fin 2) (Fin 2) ℤ), ∀ (i : ℕ) (hi : i > 0),
   Vp p ((SNF (A^(i + d * n))) 0 0) = Vp p ((C^n) 0 0) + Vp p ((SNF (A^i)) 0 0)
+
+
+
+lemma Myconj_2 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h : p ^ (i * n - n) ∣ i) (hi : i ≥ 1) : Vp p ((SNF (MYmat p n) ^ (i + p*n)) 0 0) = Vp p ((SNF ((C2 p n)^n)) 0 0) + Vp p ((SNF (MYmat p n) ^ i) 0 0) := by
+  sorry
 
 
 
