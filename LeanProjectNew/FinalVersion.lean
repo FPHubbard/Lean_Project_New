@@ -299,6 +299,8 @@ def Vp_of_0 (p : ℕ) [Fact p.Prime] : Vp p 0 = 0 := by
   rw [padicValInt]
   simp
 
+--2x2 case of the conjecture
+
 def MYconj_1 (p n N i : ℕ) [Fact p.Prime] (hn : n > 0) (hN : N > 0) (A : Matrix (Fin 2) (Fin 2) ℤ) : Prop := ∃ (d : ℕ) (hd : d > 0) (C : Matrix (Fin 2) (Fin 2) ℤ), ∀ i (hi : i > 0),
   MatrixValuation_2 p (SNF (A ^ (i + p * N))) = MatrixValuation_2 p (C^N) + MatrixValuation_2 p (SNF (A^i))
 
@@ -357,6 +359,8 @@ def Valuation_of_C2_N (p n N : ℕ) [Fact p.Prime] : MatrixValuation_2 p ((C2 p 
     rw [val_pow]
   rw [h1]
   exact congrFun (congrArg Matrix.vecCons (congrFun (congrArg Matrix.vecCons h1) ![0])) ![![0, p * n * N]]
+
+-- specific 2x2 case for when p ^ n ∣ i
 
 theorem Mythm_1 (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : p ^ n ∣ i) :
   MatrixValuation_2 p (SNF ((MYmat p n) ^ (i + p * N))) =
