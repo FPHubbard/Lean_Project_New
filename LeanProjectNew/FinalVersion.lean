@@ -199,6 +199,12 @@ lemma MYmat_pow_1 (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) : (MYmat p n) ^ i 
   #print axioms MYmat_pow_1
 
 
+lemma gcd_prime_pow (p a b : ℕ) [Fact p.Prime] : Int.gcd (p ^ a) (p ^ b) = p ^ (min a b) := by
+
+
+  sorry
+
+
 lemma d1_MYmat_pow_div (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (h : p ^ n ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i) := by
   rw[MYmat_pow_1]
   unfold d1
@@ -217,7 +223,6 @@ lemma d1_MYmat_pow_ndiv (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (h :  ¬ p ^
   have hgcd3 : Int.gcd (↑(i : ℤ) * (p : ℤ) ^ (i * n - n)) (↑p ^ (n * i)) = (p ^ (n * i - n)) := by
     sorry
   rw[hgcd3]
-
   sorry
   exact hi
 
@@ -304,6 +309,7 @@ def Vp_of_0 (p : ℕ) [Fact p.Prime] : Vp p 0 = 0 := by
 def MYconj_1 (p n N i : ℕ) [Fact p.Prime] (hn : n > 0) (hN : N > 0) (A : Matrix (Fin 2) (Fin 2) ℤ) : Prop := ∃ (d : ℕ) (hd : d > 0) (C : Matrix (Fin 2) (Fin 2) ℤ), ∀ i (hi : i > 0),
   MatrixValuation_2 p (SNF (A ^ (i + p * N))) = MatrixValuation_2 p (C^N) + MatrixValuation_2 p (SNF (A^i))
 
+-- D_i+dn with p ^ n ∣ i
 
 lemma SNF_MYmat_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : p ^ n ∣ i) : SNF ((MYmat p n) ^ (i + p * N)) = !![(p ^ (n * (i + p * N)) : ℤ), 0; 0, (p ^ (n * (i + p * N)) : ℤ)] := by
   refine SNF_MYmat_1 p n (i + p * N) ?hp ?h ?hi
@@ -321,6 +327,8 @@ def C2_N (p n N : ℕ) [Fact p.Prime] : (C2 p n) ^ N = !![(p ^ (p * n * N) : ℤ
 
   sorry
 
+-- padic valuation of D_i with p ^ n ∣ i
+
 def Valuation_of_SNF_MYmat_1 (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : p ^ n ∣ i) : MatrixValuation_2 p (SNF ((MYmat p n) ^ i)) = !![n * i, 0; 0, n * i] := by
   rw [SNF_MYmat_1 p n i hp hd hi]
   rw[MatrixValuation_2]
@@ -333,6 +341,8 @@ def Valuation_of_SNF_MYmat_1 (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i
     rw [val_pow]
   rw [h1]
   exact congrFun (congrArg Matrix.vecCons (congrFun (congrArg Matrix.vecCons h1) ![0])) ![![0, n * i]]
+
+-- padic valuation of D_i+dn with p ^ n ∣ i
 
   def Valuation_of_SNF_MYmat_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : p ^ n ∣ i) : MatrixValuation_2 p (SNF ((MYmat p n) ^ (i + p * N))) = !![n * (i + p * N), 0; 0, n * (i + p * N)] := by
     rw [SNF_MYmat_dn p n i N hn hi hN hp hd]
@@ -385,6 +395,80 @@ theorem Mythm_1 (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N
   exact hd
 
 
+-- D_i+dn with p ^ n ∤ i
+/-
+lemma SNF_MYmat_2_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : ¬ p ^ n ∣ i) : SNF ((MYmat p n) ^ (i + p * N)) = !![(p ^ ( n * (i + p * N) - n ) : ℤ), 0; 0, (p ^ ( n * (i + p * N) + n) : ℤ)] := by
+  refine SNF_MYmat_2 p n (i + p * N) ?hp ?h ?hi
+  exact hp
+  intro hdiv
+  apply hd
+  rw [Nat.dvd_iff_div_mul_eq] at hdiv
+  exact
+  have h : (i + p * N) / p ^ n * p ^ n = i + p * N := by
+    rw [hdiv]
+
+-/
+
+def SNF_MYmat_2_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : ¬ p ^ n ∣ i) : SNF ((MYmat p n) ^ (i + p * N)) = !![(p ^ ( n * (i + p * N) - n ) : ℤ), 0; 0, (p ^ ( n * (i + p * N) + n) : ℤ)] := by
+
+  sorry
+
+def Valuation_of_SNF_MYmat_2_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : ¬ p ^ n ∣ i) : MatrixValuation_2 p (SNF ((MYmat p n) ^ (i + p * N))) = !![n * (i + p * N) - n, 0; 0, n * (i + p * N) + n] := by
+  rw [SNF_MYmat_2_dn p n i N hn hi hN hp hd]
+  rw [MatrixValuation_2]
+  rw [Vp]
+  simp
+  have h : Vp p 0 = 0 := by
+    exact Vp_of_0 p
+  repeat rw [h]
+  have h1 : Vp p (p ^ (n * (i + p * N) - n)) = n * (i + p * N) - n := by
+    rw [val_pow]
+  have h2 : Vp p (p ^ (n * (i + p * N) + n)) = n * (i + p * N) + n := by
+    rw [val_pow]
+  rw [h2]
+  exact
+    congrFun (congrArg Matrix.vecCons (congrFun (congrArg Matrix.vecCons h1) ![0]))
+      ![![0, n * (i + p * N) + n]]
+
+def Valuation_of_SNF_MYmat_2 (p n i : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hp : p ≠ 0) (hd : ¬ p ^ n ∣ i) : MatrixValuation_2 p (SNF ((MYmat p n) ^ i)) = !![n * i - n, 0; 0, n * i + n] := by
+  rw [SNF_MYmat_2 p n i hp hd hi]
+  rw [MatrixValuation_2]
+  rw [Vp]
+  simp
+  have h : Vp p 0 = 0 := by
+    exact Vp_of_0 p
+  repeat rw [h]
+  have h2 : Vp p (p ^ (n * i + n)) = n * i + n := by
+    rw [val_pow]
+  rw [h2]
+  exact
+    congrFun (congrArg Matrix.vecCons (congrFun (congrArg Matrix.vecCons h1) ![0]))
+      ![![0, n * i + n]]
+
+
+-- 2 x 2 case with p ^ n ∤ i
+theorem MYthm_2 (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : ¬ p ^ n ∣ i) :
+  MatrixValuation_2 p (SNF ((MYmat p n) ^ (i + p * N))) =
+  MatrixValuation_2 p ((C2 p n) ^ N) + MatrixValuation_2 p (SNF ((MYmat p n) ^ i)) := by
+  rw[Valuation_of_C2_N]
+  rw[Valuation_of_SNF_MYmat_2_dn]
+  rw[Valuation_of_SNF_MYmat_2]
+  rw[Matrix.add]
+  simp
+  have h1 : n * (i + p * N) - n = p * n * N + (n * i - n) := by
+    sorry
+  have h2 : n * (i + p * N) + n = p * n * N + (n * i + n) := by
+    ring_nf
+  rw[h1, h2]
+  exact hn
+  exact hi
+  exact hp
+  exact hd
+  exact hn
+  exact hi
+  exact hN
+  exact hp
+  exact hd
 
 
 
