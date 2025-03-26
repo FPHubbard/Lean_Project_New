@@ -199,38 +199,45 @@ lemma MYmat_pow_1 (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) : (MYmat p n) ^ i 
   #print axioms MYmat_pow_1
 
 
-lemma gcd_of_ip_p_div {p n i : ℕ} [Fact p.Prime] (hi : i ≥ 1) (h : p ^ n ∣ i) : Int.gcd ((i : ℤ) * (p : ℤ) ^ (i * n - n)) (p ^ (n * i)) = p ^ (n * i) := by
+
+
+lemma gcd_of_ip_p_div {p n i : ℕ} [Fact p.Prime] (hi : i ≥ 1) (h : p ^ n ∣ i) (hn : n ≥ 1) : Int.gcd ((i : ℤ) * (p : ℤ) ^ (i * n - n)) (p ^ (n * i)) = p ^ (n * i) := by
   obtain ⟨k ,hk⟩ := h
   nth_rewrite 1 [hk]
   have h3 : p ^ n * k = k * p ^ n := by
     ring
   rw [h3]
-  have h1 : (↑(k * p ^ n) * ↑p ^ (i * n - n) : ℤ).gcd (↑p ^ (n * i)) = (k * p ^ (n * i) : ℤ).gcd (p ^ (n * i) : ℤ) := by
+  have h1 : Int.gcd (↑(k * p ^ n) * ↑p ^ (i * n - n) : ℤ) (↑p ^ (n * i)) = Int.gcd (k * p ^ (n * i) : ℤ) (p ^ (n * i) : ℤ) := by
     rw [←  Int.natCast_pow, ← Int.natCast_mul]
     simp
     have h1a : (↑k * ↑p ^ n * ↑p ^ (i * n - n) : ℤ) = ↑k * ↑p ^ (n * i) := by
       rw [← Int.natCast_pow, ← Int.natCast_mul]
       simp
-
-      sorry
+      have h1b : (↑p ^ n * ↑p ^ (i * n - n) : ℤ) = (↑p ^ (n * i) : ℤ) := by
+        rw [← @npow_add]
+        have h1c : n + (i * n - n) = n * i := by
+          rw [Nat.add_comm]
+          rw [Nat.sub_add_cancel]
+          exact Nat.mul_comm i n
+          exact Nat.le_mul_of_pos_left n hi
+        rw [h1c]
+      rw [mul_assoc, h1b]
     rw [h1a]
   rw[h1]
-  have h2 : (k * p ^ (n * i) : ℤ).gcd (p ^ (n * i)) = p ^ (n * i) * Int.gcd (k : ℤ) (1) := by
-
-    sorry
+  have h2 : Int.gcd (k * p ^ (n * i) : ℤ) (p ^ (n * i) * 1) = p ^ (n * i) * Int.gcd (k : ℤ) (1) := by
+    rw [Int.gcd_one]
+    rw [mul_comm]
+    rw [Int.gcd_mul_left]
+    rw [Int.gcd_one]
+    repeat rw [mul_one]
+    rw [Int.natAbs_pow, Int.natAbs_ofNat]
+  rw [mul_one] at h2
   rw [h2]
   simp
 
 
 
-
-lemma gcd_prime_pow (p a b : ℕ) [Fact p.Prime] : Int.gcd (p ^ a) (p ^ b) = p ^ (min a b) := by
-
-
-  sorry
-
-
-lemma d1_MYmat_pow_div (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (h : p ^ n ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i) := by
+lemma d1_MYmat_pow_div (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (hn : n ≥ 1) (h : p ^ n ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i) := by
   rw[MYmat_pow_1]
   unfold d1
   simp
@@ -238,12 +245,13 @@ lemma d1_MYmat_pow_div (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (h : p ^ n �
     apply gcd_of_ip_p_div
     exact hi
     exact h
+    exact hn
   rw[hgcd1]
   simp at *
   exact hi
 
 
-lemma d1_MYmat_pow_ndiv (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (h :  ¬ p ^ n ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i - n) := by
+lemma d1_MYmat_pow_ndiv (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (hn : n ≥ 1) (h :  ¬ p ^ n ∣ i) : d1 ((MYmat p n) ^ i) = p ^ (n * i - n) := by
   rw[MYmat_pow_1]
   unfold d1
   simp
@@ -255,7 +263,7 @@ lemma d1_MYmat_pow_ndiv (p n i : ℕ) [Fact p.Prime] (hi : i ≥ 1) (h :  ¬ p ^
   exact hi
 
 
-lemma SNF_MYmat_1 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h : p ^ n ∣ i) (hi : i ≥ 1) : SNF ((MYmat p n) ^ i) = !![(p ^ (n * i) : ℤ), 0; 0, (p ^ (n * i) : ℤ)] := by
+lemma SNF_MYmat_1 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h : p ^ n ∣ i) (hi : i ≥ 1) (hn : n ≥ 1) : SNF ((MYmat p n) ^ i) = !![(p ^ (n * i) : ℤ), 0; 0, (p ^ (n * i) : ℤ)] := by
   rw [MYmat_pow_1, SNF]
   rw[d2']
   have h1 : !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ); 0, (p ^ (n * i) : ℤ)].det = (p ^ (2 *(n * i)) : ℤ) := by
@@ -276,11 +284,12 @@ lemma SNF_MYmat_1 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h : p ^ n ∣ i) 
     rw[mul_one]
   rw[h2]
   exact hi
+  exact hn
   exact h
   exact hi
 
 
-lemma SNF_MYmat_2 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h :  ¬ p ^ n ∣ i) (hi : i ≥ 1) : SNF ((MYmat p n) ^ i) = !![(p ^ (n * i - n) : ℤ), 0; 0, (p ^ (n * i + n) : ℤ)] := by
+lemma SNF_MYmat_2 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h :  ¬ p ^ n ∣ i) (hi : i ≥ 1) (hn : n ≥ 1) : SNF ((MYmat p n) ^ i) = !![(p ^ (n * i - n) : ℤ), 0; 0, (p ^ (n * i + n) : ℤ)] := by
   rw [MYmat_pow_1, SNF]
   rw[d2']
   have h1 : !![(p ^ (n * i) : ℤ), (i * p ^ (i * n - n) : ℤ); 0, (p ^ (n * i) : ℤ)].det = (p ^ (2 *(n * i)) : ℤ) := by
@@ -304,8 +313,10 @@ lemma SNF_MYmat_2 (p n i : ℕ) [Fact p.Prime] (hp : p ≠ 0) (h :  ¬ p ^ n ∣
     rw[h2']
   rw[h2]
   exact hi
+  exact hn
   exact h
   exact hi
+
 
 def C2 (p n : ℕ) [Fact p.Prime] : Matrix (Fin 2) (Fin 2) ℤ := !![p^(p*n), 0; 0, p^(p*n)]
 
@@ -339,22 +350,71 @@ def padic_valuation_SNF_conjecture (p n N i : ℕ) [Fact p.Prime] (hn : n > 0) (
 
 -- D_i+dn with p ^ n ∣ i
 
+
+lemma mat_pow_p (p n : ℕ) [Fact p.Prime] (hp : p ≥ 1) :
+  !![(p ^ (n * p) : ℤ), (p * p ^ (p * n - n) : ℤ); (0 : ℤ), (p ^ (n * p) : ℤ)] *
+  !![(p ^ n : ℤ), (1 : ℤ); (0 : ℤ), (p ^ n : ℤ)] =
+  !![(p ^ (n * (p + 1)) : ℤ), ((p + 1) * p ^ ((p + 1) * n - n) : ℤ); (0 : ℤ), (p ^ (n * (p + 1)) : ℤ)] := by
+  rw[@Matrix.mul_fin_two]
+  repeat rw [mul_zero]
+  repeat rw[zero_mul]
+  repeat rw[zero_add]
+  repeat rw[add_zero]
+  repeat rw[mul_one]
+  rw [Nat.right_distrib]
+  rw [Int.add_mul]
+  repeat rw [one_mul]
+  have h1 : n * (p + 1) = n * p + n := by
+    ring
+  rw [h1]
+  rw [pow_add]
+  have h2 : (p * p ^ (p * n - n) * p ^ n : ℤ) = (p * p ^ (p * n - n + n) : ℤ) := by
+    ring
+  rw [h2]
+  rw [add_comm]
+  have h3 : p * n + n - n = n * p := by
+    rw [Nat.add_sub_cancel]
+    rw[mul_comm]
+  rw [h3]
+  have h4 : p * n - n + n = n * p := by
+    rw [Nat.sub_add_cancel]
+    rw [mul_comm]
+    exact Nat.le_mul_of_pos_left n hp
+  rw [h4]
+
+
+
 lemma MYmat_dn (p n i N : ℕ) [Fact p.Prime] (hi : i > 0) (hN : N > 0) :
   (MYmat p n) ^ (i + p * N) = !![(p ^ (n * (i + p * N)) : ℤ), ((i + p * N) * p ^ ((i + p * N) * n - n) : ℤ); (0 : ℤ), (p ^ (n * (i + p * N)) : ℤ)] := by
   sorry
 
   lemma d1_MYmat_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) :
     d1 ((MYmat p n) ^ (i + p * N)) = p ^ (n * (i + p * N)) := by
+    rw [MYmat_dn]
+    sorry
+    sorry
     sorry
 
 lemma SNF_MYmat_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : p ^ n ∣ i) : SNF ((MYmat p n) ^ (i + p * N)) = !![(p ^ (n * (i + p * N)) : ℤ), 0; 0, (p ^ (n * (i + p * N)) : ℤ)] := by
   rw [MYmat_pow_1, SNF]
   rw [d2']
-  have hdet : !![(p ^ (n * (i + p * N)) : ℤ), ((i + p * N) * ↑p ^ ((i + p * N) * n - n) : ℤ); 0 , (p ^ (n * (i + p * N)) : ℤ)].det = (p ^ (2 * (i + p * N) * n) : ℤ):= by
+  have hdet : !![(p ^ (n * (i + p * N)) : ℤ), ((i + p * N) : ℕ) * ↑p ^ ((i + p * N) * n - n); 0 , (p ^ (n * (i + p * N)) : ℤ)].det = (p ^ (2 * (i + p * N) * n) : ℤ):= by
     rw [Matrix.det_fin_two]
     simp
     ring
-  sorry
+  rw [hdet]
+  rw [← MYmat_pow_1]
+  rw [d1_MYmat_dn]
+  have h : (p ^ (2 * (i + p * N) * n) : ℤ) / (p ^ (n * (i + p * N)) : ℤ) = p ^ (n * (i + p * N)) := by
+    rw [Int.ediv_eq_of_eq_mul_right]
+    norm_cast
+    exact pow_ne_zero (n * (i + p * N)) hp
+    ring
+  rw [h]
+  exact hn
+  exact hi
+  exact hN
+  exact Nat.le_add_right_of_le hi
   exact Nat.le_add_right_of_le hi
 
 
@@ -396,6 +456,7 @@ def Valuation_of_SNF_MYmat_1 (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i
     rw [Int.natAbs_pow, Int.natAbs_ofNat]
     exact padicValNat.prime_pow (n * i)
   rw [h2]
+  exact hn
 -- padic valuation of D_i+dn with p ^ n ∣ i
 
   def Valuation_of_SNF_MYmat_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : p ^ n ∣ i) : MatrixValuation_2 p (SNF ((MYmat p n) ^ (i + p * N))) = !![n * (i + p * N), 0; 0, n * (i + p * N)] := by
@@ -458,40 +519,6 @@ theorem Theorem_div (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN
   exact hN
 
 
-lemma mat_pow_p (p n : ℕ) [Fact p.Prime] (hp : p ≥ 1) :
-  !![(p ^ (n * p) : ℤ), (p * p ^ (p * n - n) : ℤ); (0 : ℤ), (p ^ (n * p) : ℤ)] *
-  !![(p ^ n : ℤ), (1 : ℤ); (0 : ℤ), (p ^ n : ℤ)] =
-  !![(p ^ (n * (p + 1)) : ℤ), ((p + 1) * p ^ ((p + 1) * n - n) : ℤ); (0 : ℤ), (p ^ (n * (p + 1)) : ℤ)] := by
-  rw[@Matrix.mul_fin_two]
-  repeat rw [mul_zero]
-  repeat rw[zero_mul]
-  repeat rw[zero_add]
-  repeat rw[add_zero]
-  repeat rw[mul_one]
-  rw [Nat.right_distrib]
-  rw [Int.add_mul]
-  repeat rw [one_mul]
-  have h1 : n * (p + 1) = n * p + n := by
-    ring
-  rw [h1]
-  rw [pow_add]
-  have h2 : (p * p ^ (p * n - n) * p ^ n : ℤ) = (p * p ^ (p * n - n + n) : ℤ) := by
-    ring
-  rw [h2]
-  rw [add_comm]
-  have h3 : p * n + n - n = n * p := by
-    rw [Nat.add_sub_cancel]
-    rw[mul_comm]
-  rw [h3]
-  have h4 : p * n - n + n = n * p := by
-    rw [Nat.sub_add_cancel]
-    rw [mul_comm]
-    exact Nat.le_mul_of_pos_left n hp
-  rw [h4]
-
-
-
-
 
 def SNF_MYmat_2_dn (p n i N : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i > 0) (hN : N > 0) (hp : p ≠ 0) (hd : ¬ p ^ n ∣ i) : SNF ((MYmat p n) ^ (i + p * N)) = !![(p ^ ( n * (i + p * N) - n ) : ℤ), 0; 0, (p ^ ( n * (i + p * N) + n) : ℤ)] := by
 
@@ -533,6 +560,7 @@ def Valuation_of_SNF_MYmat_2 (p n i : ℕ) [Fact p.Prime] (hn : n > 0) (hi : i >
     rw [Int.natAbs_pow, Int.natAbs_ofNat]
     exact padicValNat.prime_pow (n * i - n)
   rw [h1]
+  exact hn
 
 
 
